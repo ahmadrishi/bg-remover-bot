@@ -40,7 +40,12 @@ async def img_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return IMG
 
 async def handle_img(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    pass
+    img = update.message.photo[-1].file_id
+    file = await context.bot.get_file(img)
+    await file.download_to_drive(f'Data/{img}.jpg')
+    await update.message.reply_photo(f'Data/{img}.jpg')
+    
+    return IMG
 
 async def contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
