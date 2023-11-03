@@ -40,4 +40,45 @@ async def img_entry(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return IMG
 
 async def handle_img(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    
+    pass
+
+async def contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        'Contact Us @ahmadrishi',
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard, one_time_keyboard=True
+        )
+    )
+
+async def support(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('''💳 You can support this bot using any of the following methods: 
+                                    \n\n\nUSDT TRC20:\n`TGyvamGVzimHMvhJ8sdd3NSJjbikrqHy7V`\n\nUSDT BEP20:\n`0x1fbfe66d0c24e21f6fb93799616c92d103a50e44`''', 
+                                    parse_mode=telegram.constants.ParseMode.MARKDOWN_V2)
+    return CHOOSING
+
+def main():
+    pres = PicklePersistence('Data/bot')
+    application = ApplicationBuilder().token(BOT_API).persistence(persistence=pres).build()
+    conversation_handler = ConversationHandler(
+        name='bgremover',
+        entry_points=[CommandHandler('start', start)],
+        persistent=True,
+        allow_reentry=True,
+        states={
+            CHOOSING:[
+                MessageHandler(filters.Regex("^🖼 Remove Background$"), img_entry),
+                MessageHandler(filters.Regex("^🧑‍💻 Contact Us$"), contact),
+                MessageHandler(filters.Regex("^💰 Support$"), support)
+            ],
+            IMG:[
+                MessageHandler(filters.Regex("^🔙$"), start),
+                MessageHandler(filters.PHOTO, handle_img)
+            ]
+        },
+        fallbacks=[MessageHandler(filters.Regex("^Done$"), print('done'))],
+    )
+
+    application.add_handler(conversation_handler)
+    application.run_polling()
+
+main()
